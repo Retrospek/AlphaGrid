@@ -84,5 +84,3 @@ class financialDataset(Dataset):
     
     def __getitem__(self, idx):
         return self.features[idx], self.targets[idx]
-    
-dat = financialDataset()
