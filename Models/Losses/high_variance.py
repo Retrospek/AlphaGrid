@@ -11,13 +11,12 @@ class VolatilitySpikeLoss(nn.Module):
     def forward(self, y, y_hat):
         error = y - y_hat
         
-        # Quantile loss
-        quantile_loss = torch.where(error > 0, (self.tau ** 2) * error, (self.tau) * error)
+        asymmetric_loss = torch.where(error > 0, (self.tau ** 2) * error, (self.tau) * error)
         
         # Weight HIGH volatility more heavily
         spike_weights = torch.where(y > self.spike_threshold, 10.0, 5.0)
         
-        volatility_loss = torch.mean(spike_weights * quantile_loss.abs())
+        volatility_loss = torch.mean(spike_weights * asymmetric_loss.abs())
         
         # Sign matching penalty - penalize when signs don't match
         sign_mismatch = (torch.sign(y) != torch.sign(y_hat)).float()
