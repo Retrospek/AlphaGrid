@@ -89,9 +89,11 @@ def align_on_common_dates(sector_separated_data):
     return sector_separated_data
 
 def define_target(sector_separated_data):
+    epsilon = 1e-6
     for sector in sector_separated_data.keys():
         sector_data = sector_separated_data[sector]
-        sector_data["Target"] = sector_data["RV_5Days_1DayDelta(%)"].shift(-1)
+        delta = sector_data["RV_5Days_1DayDelta(%)"].shift(-1)
+        sector_data["Target"] = delta #np.sign(delta) * np.log(np.abs(delta) + epsilon)
 
     return sector_separated_data
 

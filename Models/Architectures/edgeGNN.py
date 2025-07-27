@@ -14,7 +14,7 @@ from Models.Architectures.regressor import (
 # Edge-Centric GNN Architecture
 
 class EdgeCentricNetwork(nn.Module):
-    def __init__(self, num_nodes, edge_dim, node_dim, window=14, static=False, temporal=False, attention=False) -> None:
+    def __init__(self, num_nodes, edge_dim, node_dim, window=14, static=False, temporal=False, attention=False, complex=False) -> None:
         super().__init__()
 
         self.num_nodes = num_nodes # This also represents the number of sectors
@@ -26,10 +26,12 @@ class EdgeCentricNetwork(nn.Module):
         self.temporal = temporal
         self.attention = attention
 
+        self.complex = complex
+
         if static:
             self.edge_updater = StaticEdgeUpdater(node_dim=self.node_dim, edge_dim=self.edge_dim)
         elif temporal:
-            self.edge_updater = TemporalEdgeUpdater(node_dim=self.node_dim, edge_dim=self.edge_dim, window=self.window, num_nodes=self.num_nodes)
+            self.edge_updater = TemporalEdgeUpdater(node_dim=self.node_dim, edge_dim=self.edge_dim, window=self.window, num_nodes=self.num_nodes, complex=self.complex)
         elif attention:
             self.edge_updater = AttentionEdgeUpdater(node_dim=self.node_dim, edge_dim=self.edge_dim)
         else:
@@ -77,7 +79,7 @@ class EdgeCentricNetwork(nn.Module):
         delta = self.regression(aggregated_incoming)
         return delta
 
-
+    # Just copy pasted forward_static_or_attention and differed the input dimension handling type shit
     def forward_temporal(self, x):
         """
         Used when input is [B, T, N, D]
@@ -105,6 +107,7 @@ class EdgeCentricNetwork(nn.Module):
 
         delta = self.regression(aggregated_incoming)
 
-        # Optionally reshape to [B, T, N, ...]
         delta = delta.view(B, T, N, -1)
+        delta = delta[:, -1, :, :] # Get rid of previous timesteps. Take the last instead
+
         return delta

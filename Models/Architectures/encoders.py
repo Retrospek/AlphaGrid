@@ -24,40 +24,58 @@ class StaticEdgeUpdater(nn.Module):
         )
     
     def forward(self, x):
-        print(x.shape)
+        #print(x.shape)
         return self.edge_updater(x)
     
 class TemporalEdgeUpdater(nn.Module):
-    def __init__(self, node_dim, edge_dim, window, num_nodes):
+    def __init__(self, node_dim, edge_dim, window, num_nodes, complex):
         super().__init__()
 
         self.num_nodes = num_nodes
         self.node_dim = node_dim
         self.edge_dim = edge_dim
         self.window = window
-        
+
         self.sigmoid = nn.Sigmoid()
         self.tanh = nn.Tanh()
 
-        self.lstm_layers = nn.ModuleList([
-            nn.LSTM(input_size=2 * self.node_dim, hidden_size=128, batch_first=True),
-            nn.LSTM(input_size=128, hidden_size=64, batch_first=True),
-            nn.LSTM(input_size=64, hidden_size=32, batch_first=True)
+        self.dropout_10 = nn.Dropout(0.1)
+        self.dropout_20 = nn.Dropout(0.2)
+
+        self.temporal_layers = nn.ModuleList([
+            nn.GRU(input_size=2 * self.node_dim, hidden_size=64, batch_first=True),
+            nn.GRU(input_size=64, hidden_size=self.edge_dim, batch_first=True)
         ])
 
-        self.refined_edges = nn.Sequential(
-            nn.Linear(in_features=32, out_features=512),
+        if not complex:
+            self.refined_edges = nn.Sequential(
+                nn.Linear(in_features=self.edge_dim, out_features=256),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.Linear(in_features=256, out_features=128),
+                nn.GELU(),
+                nn.Dropout(0.1),
+                nn.Linear(in_features=128, out_features=64),
+                nn.GELU(),
+                nn.Dropout(0.05),
+                nn.Linear(in_features=64, out_features=self.edge_dim),
+                nn.GELU()
+            )
+        else:
+            self.refined_edges = nn.Sequential(
+            nn.Linear(in_features=self.edge_dim, out_features=512),
             nn.ReLU(),
             nn.Linear(in_features=512, out_features=256),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(in_features=256, out_features=128),
             nn.ReLU(),
             nn.Linear(in_features=128, out_features=64),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Linear(in_features=64, out_features=self.edge_dim)
-        )
+            )
 
-    """def window_creations(self, x):
+        """
+        def window_creations(self, x):
         Batch_size, node_pair_num, Node_dim = x.shape
         print(f"Input Dim: {x.shape}")
         reshaped = x.unfold(dimension=0, size=self.window, step=1)
@@ -71,17 +89,18 @@ class TemporalEdgeUpdater(nn.Module):
         #reshaped = x.permute(0, 2, 1, 3)
         #print(f"Reshaped Dim: {reshaped.shape}")
         return reshaped 
-        # Batch Size - Window Size + 1 x Length of Window x Number of Nodes x x Feature vector Dim"""
+        # Batch Size - Window Size + 1 x Length of Window x Number of Nodes x x Feature vector Dim
+        # """
 
     def forward(self, x):
         #x = self.window_creations(x)
         #print(f"Input Shape: {x.shape}")
         out = x
 
-        for lstm in self.lstm_layers:
+        for idx, lstm in enumerate(self.temporal_layers):
             out, _ = lstm(out)
             out = self.tanh(out)       
-        # out dim: (batch_size, seq_len, hidden_size), so we take the final hidden output for all sequences and their corresponding sequence
+        #out dim: (batch_size, seq_len, hidden_size), so we take the final hidden output for all sequences and their corresponding sequence
         #print(f"Before Sliced Shape: {out.shape}")
         #out = out[:, -1, :]
         #print(f"After Sliced Shape {out.shape}")

@@ -1,3 +1,7 @@
+# ~~~~~~~~~~~~~~~~~~~~
+## MAYBE IN THE FUTURE I'LL FINISH THIS FILE LOL
+# ~~~~~~~~~~~~~~~~~~~~
+
 import torch
 import torch.nn as nn
 import torch.optim as optim

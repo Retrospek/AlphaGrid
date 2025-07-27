@@ -65,13 +65,12 @@ class StaticFinancialDataset(Dataset):
         target_data = []
 
         removed_features = ["Date", "Sector", "Target"]
-
+        
         self.columns = [col for col in dataset[0].columns if col not in removed_features]
 
         for i in range(self.num_sectors):
             vect_feature = dataset[i].drop(columns=removed_features).values
             vect_target = dataset[i]["Target"].values
-
             feature_data.append(vect_feature)
             target_data.append(vect_target)
         
@@ -131,6 +130,8 @@ class TemporalFinancialDataset(Dataset):
         # Each Row will be for one graph, and each "entry" is going to be node feature vectors
         feature_data = [] # Dim: Sector Number x # Dates x Dim_Node
         target_data = []
+        self.returns_dict = {}
+        self.volatility_dict = {}
 
         removed_features = ["Date", "Sector", "Target"]
 
@@ -139,6 +140,8 @@ class TemporalFinancialDataset(Dataset):
         for i in range(self.num_sectors):
             vect_feature = dataset[i].drop(columns=removed_features).values
             vect_target = dataset[i]["Target"].values
+            self.returns_dict[i] = dataset[i]["InterDay_Return(%)"]
+            self.volatility_dict[i] = dataset[i]["RV_5Days_1DayDelta(%)"]
 
             feature_data.append(vect_feature)
             target_data.append(vect_target)
@@ -156,5 +159,5 @@ class TemporalFinancialDataset(Dataset):
     
     def __getitem__(self, idx):
         features = self.features[idx:idx+self.window_size]
-        targets = self.targets[idx:idx+self.window_size]
+        targets = self.targets[idx+self.window_size-1]
         return features, targets
