@@ -83,31 +83,6 @@ pip install -r requirements.txt
 
 ---
 
-## 📁 Project Structure
-
-\```
-AlphaGrid/
-├── models/
-│   ├── temporal_gnn.py          # Main GNN architecture
-│   ├── loss_functions.py        # VolatilitySpikeLoss implementation
-│   └── layers.py               # Custom graph layers
-├── data/
-│   ├── preprocessing.py         # Data cleaning and feature engineering
-│   ├── graph_construction.py    # Dynamic graph creation
-│   └── loaders.py              # PyTorch data loaders
-├── utils/
-│   ├── metrics.py              # Evaluation metrics
-│   ├── visualization.py        # Plotting functions
-│   └── config.py               # Hyperparameters
-├── train.py                    # Training script
-├── evaluate.py                 # Evaluation script
-├── visualize_results.py        # Results visualization
-├── requirements.txt            # Dependencies
-└── README.md                   # This file
-\```
-
----
-
 ## 📊 Evaluation Metrics
 
 - **Primary**: Custom VolatilitySpikeLoss (combines magnitude + directional accuracy)
