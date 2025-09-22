@@ -89,7 +89,7 @@ class StaticFinancialDataset(Dataset):
         return self.features[idx], self.targets[idx]
     
 class TemporalFinancialDataset(Dataset):
-    def __init__(self, window_size):
+    def __init__(self, window_size, start_day=None):
         super().__init__()
 
         self.window_size = window_size
@@ -101,8 +101,11 @@ class TemporalFinancialDataset(Dataset):
         self.rsi_periods = [14]
         self.realized_volatility_periods = [5, 10, 20, 30]
 
-
-        dataset = download_sector_data(sector_mapping=self.sector_map)
+        if start_day != None:
+            print(start_day)
+            dataset = download_sector_data(sector_mapping=self.sector_map, start_day=start_day)
+        else:
+            dataset = download_sector_data(sector_mapping=self.sector_map)
         check_download_uniformity(dataset, self.sector_map)
         dataset = get_sector_data_separated(sector_mapping=self.sector_map, original_data=dataset, original_columns=dataset.columns)
 
@@ -155,9 +158,14 @@ class TemporalFinancialDataset(Dataset):
         self.targets = target_data
 
     def __len__(self):
-        return self.features.shape[0] - self.window_size + 1
+        return max(0, self.features.shape[0] - self.window_size + 1)
     
-    def __getitem__(self, idx):
+    def __getitem__(self, idx, inference=False):
+        if idx == -1:  # latest window
+            idx = len(self) - 1
+
         features = self.features[idx:idx+self.window_size]
-        targets = self.targets[idx+self.window_size-1]
-        return features, targets
+        if inference != True:
+            targets = self.targets[idx+self.window_size-1]
+            return features, targets
+        return features

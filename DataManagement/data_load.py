@@ -30,8 +30,8 @@ def get_mappings():
 
     return sector_mapping, node_mapping, inverse_node_mapping
 
-def download_sector_data(sector_mapping) -> pd.DataFrame:
-        start_date = (datetime.now() - timedelta(days=5 * 365)).strftime('%Y-%m-%d')
+def download_sector_data(sector_mapping, start_day = (datetime.now() - timedelta(days=5 * 365))) -> pd.DataFrame:
+        start_date = (start_day).strftime('%Y-%m-%d')
         end_date = datetime.now().strftime('%Y-%m-%d')
 
         print(f"Downloading Sector-Based Data...")
@@ -39,6 +39,7 @@ def download_sector_data(sector_mapping) -> pd.DataFrame:
         print(f"Downloaded yfinance sector data for =:\n-> Keys: {list(sector_mapping.keys())}\n-> Values: list{sector_mapping.values()}")
 
         print(f"Flattening Column Labels to Remove Tuple-Based Column Structure... & Shifting Date into Column")
+        # Fix the column flattening - swap the order to get sector_metric format
         sector_data.columns = [f"{sector}_{metric}" for metric, sector in sector_data.columns]
         sector_data = sector_data.reset_index()
 
@@ -50,7 +51,10 @@ def get_sector_data_separated(sector_mapping, original_data, original_columns) -
     sector_separated_data = {}
 
     for sector in sector_mapping.keys():
-        sector_separated_data[sector] = original_data[[f"{sector}_{metric[metric.index("_") + 1:]}" for metric in original_columns if sector in metric]].copy()
+        sector_separated_data[sector] = original_data[
+            [f"{sector}_{metric[metric.index('_') + 1:]}" for metric in original_columns if sector in metric]
+            ].copy()
+
         sector_data = sector_separated_data[sector] # Dynamic State any change conserved
         new_columns = [old[old.index("_") + 1:] for old in sector_data.columns if "_" in old]
         sector_data.columns = new_columns
@@ -119,7 +123,7 @@ def check_download_uniformity(sector_data, sector_mapping):
         print("✗ Sectors have different numbers of dates!")
         for sector, dates in sector_dates.items():
             print(f"  {sector}: {len(dates)} dates")
-    
+        
     # Check intersection
     common_dates = set.intersection(*all_date_sets)
     print(f"Common dates: {len(common_dates)}")

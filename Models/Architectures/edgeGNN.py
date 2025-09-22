@@ -54,7 +54,7 @@ class EdgeCentricNetwork(nn.Module):
             raise ValueError("Invalid configuration: no model mode selected.")
 
 
-    def forward_static_or_attention(self, x):
+    def forward_static_or_attention(self, x, inference=False):
         """
         Used when input is [B, N, D]. Also shared by attention models.
         """
@@ -77,6 +77,9 @@ class EdgeCentricNetwork(nn.Module):
         aggregated_incoming = incoming_edges.reshape(B, N, N * self.edge_dim)
 
         delta = self.regression(aggregated_incoming)
+
+        if inference:
+            return delta, 
         return delta
 
     # Just copy pasted forward_static_or_attention and differed the input dimension handling type shit

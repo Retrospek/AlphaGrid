@@ -17,6 +17,7 @@ debugpy==1.8.14
 decorator==5.2.1
 dill==0.3.8
 executing==2.2.0
+fastapi
 filelock==3.13.1
 fonttools==4.58.4
 frozendict==2.4.6
@@ -64,7 +65,7 @@ Pygments==2.19.1
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 pytz==2025.2
-pywin32==310
+pywin32==310; sys_platform == "win32"
 PyYAML==6.0.2
 pyzmq==26.4.0
 regex==2024.11.6
@@ -79,15 +80,16 @@ stack-data==0.6.3
 sympy==1.13.3
 threadpoolctl==3.6.0
 tokenizers==0.21.1
-torch==2.7.1+cu118
-torchaudio==2.7.1+cu118
-torchvision==0.22.1+cu118
+torch==2.7.1
+torchaudio==2.7.1
+torchvision==0.22.1
 tornado==6.5.1
 tqdm==4.67.1
 traitlets==5.14.3
 transformers==4.52.4
 typing_extensions==4.12.2
 tzdata==2025.2
+uvicorn
 urllib3==2.5.0
 wcwidth==0.2.13
 websockets==15.0.1
