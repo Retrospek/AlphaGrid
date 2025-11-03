@@ -1,117 +1,132 @@
-# 📈 📈 AlphaG:rSpillover ForecastingFousgas Tmg using Temporal Graph Neural Networksporal Graph Neural Networks
+# 📈 AlphaGrid: Spillover Forecasting Using Temporal Graph Neural Networks
 
-Thishproje t rmplemeots a djepect implements a do model end foeaiasn **crogs-sector system to model and f**oin financial markecs. Usi g*a *ynamcc sdg--cesericcgroph rvpresenoationlof atilit relationphips aldovaeious GNN rrc*itectures,*I aimid to ontpe form trfditionainvolatility modnling mechadmare.g., kARCH(1, 1.) Using a dynamic edge-centric graph representation of sector relationships and various GNN architectures, I aimed to outperform traditional volatility modeling methods (e.g., GARCH(1, 1)).
+This project implements a deep learning system to model and forecast **cross-sector volatility spillovers** in financial markets. Using a dynamic edge-centric graph representation of sector relationships and various GNN architectures, I aimed to outperform traditional volatility modeling methods (e.g., GARCH(1, 1)).
 
-## ��PProblemmStatStenttement
+## 🎯 Problem Statement
 
--***Objecjeve**e*Pr ddittfuturfuchaeg h iolrtal zeddvosieilioya(ΔRV)nfor l givncsector,bse inrdepeenciet g=telp11 GIC  s%cΔors.n realized volatility for a given sector
--Chllge Volatility-is-not-isolted — ocksineset(e.g, Engy) cn rilethroug ther(eg,Industials).
--# Voolulion**: Use a **fully connecied,lditecpieLgrsp io wheren
- -CNodesu=ssectoros function combining three components:
- --Edges =*Aimectimnal ieflurice Error Penalties**: τ² weight for under-prediction, τ weight for under-prediction
- - Edge features-= learned*re*resentaoiatsioftsecSor-pai  inteiactionsg**: 10x penalty for high volatility periods (>threshold), 5x for normal periods
--- Target*=`next-stet %Δnealizdvolaiity fr  given ecor
+- **Objective**: Predict future changes in realized volatility (ΔRV) for a given sector, based on independent 11 GICS sectors
+- **Challenge**: Volatility is not isolated — shocks in one sector (e.g., Energy) can ripple through others (e.g., Industrials)
+- **Solution**: Use a **fully connected, directed graph** where:
+  - **Nodes** = sectors
+  - **Edges** = directional influence relationships
+  - **Edge features** = learned representations of sector-pair interactions
+  - **Target** = next-step ΔRV (realized volatility change) for a given sector
 
 ---
+
+## 🎯 VolatilitySpikeLoss Function
+
+Custom loss function combining three components:
+
+- **Asymmetric Error Penalties**: τ² weight for under-prediction, τ weight for over-prediction
+- **Volatility Spike Weighting**: 10x penalty for high volatility periods (>threshold), 5x for normal periods
+- **Directional Accuracy**: Additional penalty when predicted and true values have opposite signs
+```python
 class VolatilitySpikeLoss(nn.Module):
-   🏗️fArc_iteci_reeD,tails tau=2, spike_threshold=1.0, direction_weight=2):
-       # Custom loss implementation
-###`VltitSpikeLosFucti
-Custom loss fcton cbinintre componnts
-Asymmetric ErrrPenalt:τ² weight fo undr-dicion,τweghrund-
-### VrSk Weighting**:u10S*p`nblay for htgh_size, sequecereods (>thresho_d), 5x fer normal pgtiodsh, 11_sectors, features]`
-- **DiNectionNlLAccuracy**::Addi-ionmecawn ltyO:henprdii ndtruvalu ave ppsitesgs
-
-\```pytho
-lss VoatilitySpikeLos(nn.Module:
--def __init__slftau=2spke_hrshol=1.0,ircion_weight=2):
-      # Cstomlss impementn
-\```## 🧠 Methodology
-
-#Model
--***Input Shope**: `[batdh_sizs, seque*ce_length, 11_sectors,:fe1ture ]`sectors (Technology, Healthcare, Financials, etc.)
-- **GNN day*rs Fu Edge-updatinglmech nism witonleatned embiddingsd gr 121aph (121 totaledla)ship
-- **Temporel ComponenauresLSTM/GRU/MLP:varints fti-ieprcessg
- - *Oudpetatur11-demegst aals per sectorchang pedtion
-
--- 
-
-##-🧠gMethofology
-
-### 🧱 Graeh Canstructtou
-- **Nodeses* 11*GICnisr ioein(Terhnology, Healahcate,iFin nceats, eec.)
--n**E gso**:ully cnecdrectedgrh (121 toal edges
-### eatu🧠os**:
- - **Nede featules ImpAggmegatednmrket fetues er secor
--**Ege faturs**: Engieere pairwis iteratons btween ectors
- - `TTemporraNN`:R-lldngl ondows vorcreate sequences of  temporagraphl
-
-### 🧠 Models Implemegted embeddings
-- `TmmporpoDenseGNN`: MLPrsayle EoddlNover :emp ual sdge embeddings
-- `TempooalEdgmGNN`: Cu tom GNN witGNNdgw-updatinghme-hapiamting mechanism
-- **Ablatiti StudytudySystematic c*mpa:iSste f LSTMomGRUn of LMLP teSpTra  componGntsRU, and MLP temporal components
+    def __init__(self, tau=2, spike_threshold=1.0, direction_weight=2):
+        # Custom loss implementation
+```
 
 ---
 
----�Quika
+## 🧠 Methodology
 
-### Perequsites
-- Python 3.8+equisites
-- PyTorchP2.0+
--ypanda , num,matplotlib,tqdm
+### 🧱 Graph Construction
 
-##Inallation
-\```sh
-git loehttps://gub.co/Retrspk/AphaGrid
-cdyAlphaGoi.+
-pip installp-rarequ,rumentsp,xt
-\```
+- **Nodes**: 11 GICS sectors (Technology, Healthcare, Financials, etc.)
+- **Edges**: Fully connected graph (121 total edges)
 
----
+### 🔧 Features
 
-##a📊tResults
+- **Node features**: Aggregated market features per sector
+- **Edge features**: Engineered pairwise interactions between sectors
+- **Temporal windows**: Rolling windows to create sequences of temporal graphs
 
-,## Performqnce Cmpison
-|#|#VolatilitySpikeLoss| allation
-|-------|--------------------|---------------------
-|**AlphaGridGNN**|3.29|raph+ Tepra
-|GARCH(1,1) Basle | 3.36 | Tradal Ecooric
+### 🧠 Models Implemented
 
-###KeyFindings
--**Temporalmechnisms**:Abtostuyovd GRU comnnt uperor fnrtfiRanrsalktilehaeries
--A**Closs-spctor spGllovers**: Succissfully captured dynadic corrlatio paernsrugh learedeg mbddng
- install -r requirements.txt
----\```
-
-�EvuationMrc---
-
-## P smayusomVoltilitySikeLoss(combins magnitde + diectionaccuacy)
-SecodaryMenSquare Errr (MSE),MeanAbolut Err(MA)
-### Direcrionalman Signcaccu aiy fonchang
-| MoBalk eVtingolaiWylk-fprwaidkvalidL|ion on out-of-Aamplr daha
+- `TemporalDenseGNN`: MLP-style model over temporal edge embeddings
+- `TemporalEdgeGNN`: Custom GNN with edge-updating mechanism
+- **Ablation Study**: Systematic comparison of LSTM, GRU, and MLP temporal components
 
 ---
 
-## 🔬cureImplmntaion
-|-------|--------------------|---------------------
-| **Alpi GRp)li e
- .3**ETF DataCllecto**: 11scto ETFwithdailyOHLCVat
-2.#**VoKeyil tynCalculaio**: **Temporal mechanis usi*g high-frequrncsector sp
-3.**eu Engnering**:Tchnica indicaorSscrtss-: Walkcorrlion### Data Pipeline
-4.**EGr ph Constluion** 1:1DynacictcorreoatronTFst icis →ha jicency*atnsois
+## 🚀 Quick Start
 
-###aTrn* ingdPrvclduatsing high-frequency returns
-3**FOptimiz nee: Adam withrlearg:Tg rene 3.25e-5cal indicators, cross-sector correlations
-4**GBatchoSizn**: 32:sequencDyic correlation matrices → adjacency tensors
-Sque Lngth:Vaiablmpra windw
-# TrR gurarizatioue:Ctizss w*igh ular+tdropou*Custom loss weighting + dropout
+### Prerequisites
+
+- Python 3.8+
+- PyTorch 2.0+
+- pandas, numpy, matplotlib, tqdm
+
+### Installation
+```sh
+git clone https://github.com/Retrospek/AlphaGrid
+cd AlphaGrid
+pip install -r requirements.txt
+```
+
+---
+
+## 📊 Results
+
+### Performance Comparison
+
+| Model | VolatilitySpikeLoss | Architecture |
+|-------|---------------------|--------------|
+| **AlphaGrid GNN** | 3.29 | Graph + Temporal |
+| GARCH(1,1) Baseline | 3.36 | Traditional Econometric |
+
+### Key Findings
+
+- **Temporal mechanisms**: Ablation study found GRU component superior for financial time series
+- **Cross-sector spillovers**: Successfully captured dynamic correlation patterns through learned edge embeddings
+
+---
+
+## 📏 Evaluation Metrics
+
+- **Primary**: Custom VolatilitySpikeLoss (combines magnitude + directional accuracy)
+- **Secondary**: Mean Squared Error (MSE), Mean Absolute Error (MAE)
+- **Directional**: Sign accuracy for change prediction
+- **Validation**: Walk-forward validation on out-of-sample data
+
+---
+
+## 🔬 Implementation Details
+
+### Data Pipeline
+
+1. **ETF Data Collection**: 11 sector ETFs with daily OHLCV data
+2. **Volatility Calculation**: Realized volatility using high-frequency returns
+3. **Feature Engineering**: Technical indicators, cross-sector correlations
+4. **Graph Construction**: Dynamic correlation matrices → adjacency tensors
+
+### Training Procedure
+
+- **Optimizer**: Adam with learning rate 3.25e-5
+- **Batch Size**: 32
+- **Sequence Length**: Variable temporal window
+- **Regularization**: Custom loss weighting + dropout
+
+---
+
+## 🎨 Customization
+
 Edit the `SECTOR_MAPPING` in `frontend/index.html`:
+```javascript
+const SECTOR_MAPPING = {
+    'XLK': 'Technology',
+    'XLV': 'Healthcare',
+    // Add your sectors here
+};
+```
+
 ---
 
 ## 🚀 Future Work
 
 - [ ] Incorporate options market data for volatility surface modeling
-- [ ] Extend to international sector ETFs for global spillover analysis  
+- [ ] Extend to international sector ETFs for global spillover analysis
 - [ ] Real-time deployment with streaming market data
 - [ ] Attention mechanisms for interpretable sector influence weights
 
@@ -126,4 +141,4 @@ Edit the `SECTOR_MAPPING` in `frontend/index.html`:
 
 ---
 
-*Built with PyTorch, Pandas, and a curiousity for quantitative finance* 🚀
+*Built with PyTorch, Pandas, and a curiosity for quantitative finance* 🚀
